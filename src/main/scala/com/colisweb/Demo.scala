@@ -1,16 +1,16 @@
 package com.colisweb
 
-import com.github.pathikrit.dijon.parse
 import org.fusesource.scalate.{Template, TemplateEngine}
 
-object Demo2 extends App {
+object Demo extends App {
   val engine             = new TemplateEngine
   val template: Template = engine.compileSsp("""
-    |<%@ val json: com.github.pathikrit.dijon.SomeJson %>
+    |<%@ val json: ujson.Value.Value %>
     |<%
-    |  val name = json.name.asString.get
-    |  val age = json.age.asInt.get
-    |  val emails = json.contact.emails.toSeq.map(_.asString.get)
+    |  val name = json("name").str
+    |  val age = json("age").num.toInt
+    |  val emails = json("contact")("emails").arr
+    |
     |%>
     |yo ${name} (${age})
     |
@@ -32,6 +32,5 @@ object Demo2 extends App {
                 |  }
                 |}""".stripMargin
 
-  val json = parse(data)
-  println(engine.layout("aa.ssp", template, Map("json" -> json)))
+  println(engine.layout("aa.ssp", template, Map("json" -> ujson.read(data))))
 }
